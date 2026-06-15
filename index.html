@@ -3,9 +3,11 @@
 
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>Inventario de Ropa</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -15,6 +17,8 @@
     --panel2:#334155;
     --accent:#38bdf8;
     --success:#10b981;
+    --danger:#ef4444;
+    --warning:#f59e0b;
     --text:#e2e8f0;
     --border:#475569;
 }
@@ -29,7 +33,8 @@ body{
     background:var(--bg);
     color:var(--text);
     font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
-    padding:30px;
+    padding:15px;
+    font-size:14px;
 }
 
 .container{
@@ -38,47 +43,51 @@ body{
 }
 
 .header{
-    margin-bottom:25px;
+    margin-bottom:20px;
+    text-align:center;
 }
 
 .header h1{
-    font-size:32px;
+    font-size:24px;
 }
 
 .header p{
     color:#94a3b8;
     margin-top:5px;
+    font-size:13px;
 }
 
 .card{
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:12px;
-    padding:20px;
-    margin-bottom:20px;
+    padding:15px;
+    margin-bottom:15px;
 }
 
 .card-title{
-    margin-bottom:15px;
+    margin-bottom:12px;
     color:var(--accent);
+    font-size:16px;
 }
 
 .form-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
+    grid-template-columns:1fr;
+    gap:10px;
 }
 
-input{
+input, select{
     width:100%;
     padding:12px;
     border:none;
     border-radius:8px;
     background:var(--panel2);
     color:white;
+    font-size:14px;
 }
 
-input:focus{
+input:focus, select:focus{
     outline:2px solid var(--accent);
 }
 
@@ -90,70 +99,345 @@ button{
     border-radius:8px;
     padding:12px;
     cursor:pointer;
+    transition:all 0.3s;
+    font-size:14px;
+    width:100%;
 }
 
 button:hover{
     opacity:.9;
 }
 
+button:active{
+    transform:scale(0.98);
+}
+
+.btn-edit{
+    background:var(--warning);
+    padding:8px 12px;
+    font-size:12px;
+    width:auto;
+}
+
+.btn-delete{
+    background:var(--danger);
+    color:white;
+    padding:8px 12px;
+    font-size:12px;
+    width:auto;
+}
+
 .stats{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:15px;
-    margin-bottom:20px;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:15px;
 }
 
 .stat{
     background:var(--panel);
     border:1px solid var(--border);
-    border-radius:12px;
-    padding:20px;
+    border-radius:10px;
+    padding:12px;
 }
 
 .stat h2{
-    font-size:28px;
+    font-size:20px;
     color:var(--accent);
 }
 
 .stat span{
     color:#94a3b8;
+    font-size:12px;
+}
+
+.stat-danger h2{
+    color:var(--danger);
 }
 
 .search{
-    margin-bottom:15px;
+    margin-bottom:12px;
 }
 
 .search input{
     width:100%;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
+/* Tabla responsive - se convierte en cards en móvil */
+@media (max-width:768px){
+    table, thead, tbody, th, td, tr{
+        display:block;
+    }
+    
+    thead tr{
+        position:absolute;
+        top:-9999px;
+        left:-9999px;
+    }
+    
+    tr{
+        border:1px solid var(--border);
+        border-radius:8px;
+        margin-bottom:10px;
+        padding:10px;
+        background:var(--panel2);
+    }
+    
+    td{
+        border:none;
+        position:relative;
+        padding-left:50%;
+        text-align:right;
+        padding-top:8px;
+        padding-bottom:8px;
+    }
+    
+    td:before{
+        position:absolute;
+        left:10px;
+        width:45%;
+        padding-right:10px;
+        white-space:nowrap;
+        text-align:left;
+        font-weight:bold;
+        color:var(--accent);
+    }
+    
+    td:nth-of-type(1):before{content:"Producto:";}
+    td:nth-of-type(2):before{content:"Talle:";}
+    td:nth-of-type(3):before{content:"Color:";}
+    td:nth-of-type(4):before{content:"Precio:";}
+    td:nth-of-type(5):before{content:"Stock:";}
+    td:nth-of-type(6):before{content:"Acciones:";}
+    
+    td:nth-of-type(6){
+        padding-left:10px;
+        text-align:center;
+        margin-top:10px;
+    }
 }
 
-thead{
-    background:var(--panel2);
+.stock-low{
+    background:rgba(239,68,68,0.2);
+    color:var(--danger);
+    font-weight:bold;
 }
 
-th{
-    text-align:left;
-    padding:15px;
-}
-
-td{
-    padding:15px;
-    border-top:1px solid var(--border);
-}
-
-tr:hover{
-    background:#22304b;
+.stock-critical{
+    background:#000;
+    color:#fff;
+    font-weight:bold;
 }
 
 .loading{
     text-align:center;
     padding:30px;
     color:#94a3b8;
+}
+
+.charts-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.chart-container{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:15px;
+}
+
+.chart-header{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+.chart-header h3{
+    color:var(--accent);
+    font-size:15px;
+}
+
+.filter-group{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.filter-group select{
+    width:100%;
+    flex:1;
+    min-width:0;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    overflow-y:auto;
+}
+
+.modal-content{
+    background:var(--panel);
+    margin:20px auto;
+    padding:20px;
+    border-radius:12px;
+    width:95%;
+    max-width:500px;
+    border:1px solid var(--border);
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.modal-header h3{
+    color:var(--accent);
+    font-size:18px;
+}
+
+.close{
+    color:#aaa;
+    font-size:28px;
+    font-weight:bold;
+    cursor:pointer;
+    padding:5px 10px;
+}
+
+.close:hover{
+    color:var(--danger);
+}
+
+.action-buttons{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+/* Desktop styles */
+@media (min-width:769px){
+    body{
+        padding:30px;
+        font-size:16px;
+    }
+    
+    .header h1{
+        font-size:32px;
+    }
+    
+    .header p{
+        font-size:16px;
+    }
+    
+    .card{
+        padding:20px;
+    }
+    
+    .card-title{
+        font-size:18px;
+    }
+    
+    .form-grid{
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    }
+    
+    .stats{
+        grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+        gap:15px;
+    }
+    
+    .stat{
+        padding:20px;
+    }
+    
+    .stat h2{
+        font-size:28px;
+    }
+    
+    .stat span{
+        font-size:14px;
+    }
+    
+    .charts-grid{
+        grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+    }
+    
+    .chart-header{
+        flex-direction:row;
+        justify-content:space-between;
+        align-items:center;
+    }
+    
+    .chart-header h3{
+        font-size:18px;
+    }
+    
+    .filter-group select{
+        width:auto;
+        min-width:150px;
+    }
+    
+    button{
+        width:auto;
+    }
+    
+    .btn-edit, .btn-delete{
+        width:auto;
+    }
+    
+    table{
+        width:100%;
+        border-collapse:collapse;
+    }
+    
+    thead{
+        background:var(--panel2);
+        display:table-header-group;
+    }
+    
+    th{
+        text-align:left;
+        padding:15px;
+    }
+    
+    td{
+        padding:15px;
+        border-top:1px solid var(--border);
+        display:table-cell;
+    }
+    
+    tr{
+        display:table-row;
+        border:none;
+        margin-bottom:0;
+        padding:0;
+        background:transparent;
+    }
+    
+    tr:hover{
+        background:#22304b;
+    }
+    
+    td:before{
+        display:none;
+    }
+    
+    .action-buttons{
+        justify-content:flex-start;
+    }
 }
 
 </style>
@@ -184,6 +468,61 @@ tr:hover{
     <div class="stat">
         <span>Valor Inventario</span>
         <h2 id="valorInventario">$0</h2>
+    </div>
+
+    <div class="stat stat-danger">
+        <span>Stock Crítico (≤1)</span>
+        <h2 id="stockCritico">0</h2>
+    </div>
+
+</div>
+
+<div class="charts-grid">
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>📊 Stock por Talle</h3>
+            <div class="filter-group">
+                <select id="filtroTalleGrafico" onchange="actualizarGraficos()">
+                    <option value="todos">Todos los Talles</option>
+                </select>
+            </div>
+        </div>
+        <canvas id="graficoTalle"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>🎨 Stock por Color</h3>
+            <div class="filter-group">
+                <select id="filtroColorGrafico" onchange="actualizarGraficos()">
+                    <option value="todos">Todos los Colores</option>
+                </select>
+            </div>
+        </div>
+        <canvas id="graficoColor"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>⚠️ Productos con Stock Bajo</h3>
+            <div class="filter-group">
+                <select id="filtroStockBajo" onchange="actualizarGraficos()">
+                    <option value="1">Stock ≤ 1</option>
+                    <option value="2">Stock ≤ 2</option>
+                    <option value="5">Stock ≤ 5</option>
+                    <option value="10">Stock ≤ 10</option>
+                </select>
+            </div>
+        </div>
+        <canvas id="graficoStockBajo"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>💰 Valor por Talle</h3>
+        </div>
+        <canvas id="graficoValor"></canvas>
     </div>
 
 </div>
@@ -230,13 +569,14 @@ tr:hover{
                 <th>Color</th>
                 <th>Precio</th>
                 <th>Stock</th>
+                <th>Acciones</th>
             </tr>
         </thead>
 
         <tbody id="tbody">
 
             <tr>
-                <td colspan="5" class="loading">
+                <td colspan="6" class="loading">
                     Cargando información...
                 </td>
             </tr>
@@ -249,12 +589,36 @@ tr:hover{
 
 </div>
 
+<div id="modalEditar" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✏️ Editar Producto</h3>
+            <span class="close" onclick="cerrarModal()">&times;</span>
+        </div>
+        <div class="form-grid">
+            <input id="editNombre" placeholder="Nombre">
+            <input id="editTalle" placeholder="Talle">
+            <input id="editColor" placeholder="Color">
+            <input id="editPrecio" type="number" placeholder="Precio">
+            <input id="editStock" type="number" placeholder="Stock">
+            <button onclick="actualizarProducto()">
+                Actualizar Producto
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxY2MJwvQ4kO2qv8eiWVgfMfQ6zsXXgXCyxXIqBl4HtDZGa3_LTH-FU5OfvOvbhpfn2iQ/exec";
 
 let inventario=[];
+let graficoTalleChart;
+let graficoColorChart;
+let graficoStockBajoChart;
+let graficoValorChart;
+let productoEditando = null;
 
 async function guardarProducto(){
 
@@ -318,6 +682,10 @@ async function cargarProductos(){
 
         actualizarDashboard();
 
+        actualizarFiltrosGraficos();
+
+        actualizarGraficos();
+
     }
     catch(error){
 
@@ -334,7 +702,16 @@ function renderizarTabla(){
 
     tbody.innerHTML="";
 
-    inventario.forEach(item=>{
+    inventario.forEach((item, index)=>{
+
+        const stockNum = Number(item.stock);
+        let stockClass = "";
+        
+        if(stockNum <= 1){
+            stockClass = "stock-critical";
+        } else if(stockNum <= 5){
+            stockClass = "stock-low";
+        }
 
         tbody.innerHTML += `
         <tr>
@@ -342,7 +719,17 @@ function renderizarTabla(){
             <td>${item.talle}</td>
             <td>${item.color}</td>
             <td>$${item.precio}</td>
-            <td>${item.stock}</td>
+            <td class="${stockClass}">${item.stock}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-edit" onclick="editarProducto(${index})">
+                        ✏️ Editar
+                    </button>
+                    <button class="btn-delete" onclick="eliminarProducto(${index})">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            </td>
         </tr>
         `;
 
@@ -354,32 +741,406 @@ function actualizarDashboard(){
 
     let stockTotal=0;
     let valorTotal=0;
+    let stockCritico=0;
 
     inventario.forEach(item=>{
 
-        stockTotal +=
-            Number(item.stock);
-
-        valorTotal +=
-            Number(item.stock) *
-            Number(item.precio);
+        const stock = Number(item.stock);
+        stockTotal += stock;
+        valorTotal += stock * Number(item.precio);
+        
+        if(stock <= 1){
+            stockCritico++;
+        }
 
     });
 
-    document.getElementById(
-        "totalProductos"
-    ).innerText =
-        inventario.length;
+    document.getElementById("totalProductos").innerText = inventario.length;
+    document.getElementById("totalStock").innerText = stockTotal;
+    document.getElementById("valorInventario").innerText = "$" + valorTotal.toLocaleString();
+    document.getElementById("stockCritico").innerText = stockCritico;
 
-    document.getElementById(
-        "totalStock"
-    ).innerText =
-        stockTotal;
+}
 
-    document.getElementById(
-        "valorInventario"
-    ).innerText =
-        "$" + valorTotal.toLocaleString();
+function actualizarFiltrosGraficos(){
+
+    const talles = [...new Set(inventario.map(item => item.talle))].sort();
+    const colores = [...new Set(inventario.map(item => item.color))].sort();
+
+    const filtroTalle = document.getElementById("filtroTalleGrafico");
+    const filtroColor = document.getElementById("filtroColorGrafico");
+
+    filtroTalle.innerHTML = '<option value="todos">Todos los Talles</option>';
+    filtroColor.innerHTML = '<option value="todos">Todos los Colores</option>';
+
+    talles.forEach(talle => {
+        filtroTalle.innerHTML += `<option value="${talle}">${talle}</option>`;
+    });
+
+    colores.forEach(color => {
+        filtroColor.innerHTML += `<option value="${color}">${color}</option>`;
+    });
+
+}
+
+function actualizarGraficos(){
+
+    const filtroTalle = document.getElementById("filtroTalleGrafico").value;
+    const filtroColor = document.getElementById("filtroColorGrafico").value;
+    const filtroStockBajo = Number(document.getElementById("filtroStockBajo").value);
+
+    let datosFiltrados = inventario;
+
+    if(filtroTalle !== "todos"){
+        datosFiltrados = datosFiltrados.filter(item => item.talle === filtroTalle);
+    }
+
+    if(filtroColor !== "todos"){
+        datosFiltrados = datosFiltrados.filter(item => item.color === filtroColor);
+    }
+
+    actualizarGraficoTalle(datosFiltrados);
+    actualizarGraficoColor(datosFiltrados);
+    actualizarGraficoStockBajo(filtroStockBajo);
+    actualizarGraficoValor(datosFiltrados);
+
+}
+
+function actualizarGraficoTalle(datos){
+
+    const stockPorTalle = {};
+    
+    datos.forEach(item => {
+        const talle = item.talle;
+        stockPorTalle[talle] = (stockPorTalle[talle] || 0) + Number(item.stock);
+    });
+
+    const labels = Object.keys(stockPorTalle).sort();
+    const data = labels.map(talle => stockPorTalle[talle]);
+
+    if(graficoTalleChart){
+        graficoTalleChart.destroy();
+    }
+
+    const ctx = document.getElementById("graficoTalle").getContext("2d");
+    graficoTalleChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Stock por Talle',
+                data: data,
+                backgroundColor: 'rgba(56, 189, 248, 0.6)',
+                borderColor: 'rgba(56, 189, 248, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e2e8f0'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#e2e8f0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#e2e8f0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+
+}
+
+function actualizarGraficoColor(datos){
+
+    const stockPorColor = {};
+    
+    datos.forEach(item => {
+        const color = item.color;
+        stockPorColor[color] = (stockPorColor[color] || 0) + Number(item.stock);
+    });
+
+    const labels = Object.keys(stockPorColor).sort();
+    const data = labels.map(color => stockPorColor[color]);
+
+    if(graficoColorChart){
+        graficoColorChart.destroy();
+    }
+
+    const ctx = document.getElementById("graficoColor").getContext("2d");
+    graficoColorChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    'rgba(56, 189, 248, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(236, 72, 153, 0.8)',
+                    'rgba(14, 165, 233, 0.8)',
+                    'rgba(168, 162, 158, 0.8)'
+                ],
+                borderColor: 'rgba(30, 41, 59, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#e2e8f0'
+                    }
+                }
+            }
+        }
+    });
+
+}
+
+function actualizarGraficoStockBajo(limite){
+
+    const productosBajoStock = inventario
+        .filter(item => Number(item.stock) <= limite)
+        .sort((a, b) => Number(a.stock) - Number(b.stock))
+        .slice(0, 10);
+
+    const labels = productosBajoStock.map(item => `${item.nombre} (${item.talle})`);
+    const data = productosBajoStock.map(item => Number(item.stock));
+
+    if(graficoStockBajoChart){
+        graficoStockBajoChart.destroy();
+    }
+
+    const ctx = document.getElementById("graficoStockBajo").getContext("2d");
+    graficoStockBajoChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Stock',
+                data: data,
+                backgroundColor: data.map(stock => 
+                    stock <= 1 ? 'rgba(0, 0, 0, 0.8)' : 
+                    stock <= 2 ? 'rgba(239, 68, 68, 0.8)' : 
+                    'rgba(245, 158, 11, 0.8)'
+                ),
+                borderColor: data.map(stock => 
+                    stock <= 1 ? '#000' : 
+                    stock <= 2 ? 'rgba(239, 68, 68, 1)' : 
+                    'rgba(245, 158, 11, 1)'
+                ),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e2e8f0'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#e2e8f0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#e2e8f0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+
+}
+
+function actualizarGraficoValor(datos){
+
+    const valorPorTalle = {};
+    
+    datos.forEach(item => {
+        const talle = item.talle;
+        const valor = Number(item.stock) * Number(item.precio);
+        valorPorTalle[talle] = (valorPorTalle[talle] || 0) + valor;
+    });
+
+    const labels = Object.keys(valorPorTalle).sort();
+    const data = labels.map(talle => valorPorTalle[talle]);
+
+    if(graficoValorChart){
+        graficoValorChart.destroy();
+    }
+
+    const ctx = document.getElementById("graficoValor").getContext("2d");
+    graficoValorChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Valor por Talle ($)',
+                data: data,
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e2e8f0'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#e2e8f0',
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#e2e8f0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+
+}
+
+function editarProducto(index){
+
+    productoEditando = index;
+    const producto = inventario[index];
+
+    document.getElementById("editNombre").value = producto.nombre;
+    document.getElementById("editTalle").value = producto.talle;
+    document.getElementById("editColor").value = producto.color;
+    document.getElementById("editPrecio").value = producto.precio;
+    document.getElementById("editStock").value = producto.stock;
+
+    document.getElementById("modalEditar").style.display = "block";
+
+}
+
+function cerrarModal(){
+
+    document.getElementById("modalEditar").style.display = "none";
+    productoEditando = null;
+
+}
+
+async function actualizarProducto(){
+
+    const producto = {
+        index: productoEditando,
+        nombre: document.getElementById("editNombre").value,
+        talle: document.getElementById("editTalle").value,
+        color: document.getElementById("editColor").value,
+        precio: document.getElementById("editPrecio").value,
+        stock: document.getElementById("editStock").value
+    };
+
+    if(!producto.nombre){
+        alert("Ingrese un nombre");
+        return;
+    }
+
+    try{
+
+        await fetch(API_URL, {
+            method: "PUT",
+            body: JSON.stringify(producto)
+        });
+
+        cerrarModal();
+        await cargarProductos();
+        alert("Producto actualizado correctamente");
+
+    }catch(error){
+
+        console.error(error);
+        alert("Error actualizando producto");
+
+    }
+
+}
+
+async function eliminarProducto(index){
+
+    if(!confirm("¿Está seguro de eliminar este producto?")){
+        return;
+    }
+
+    try{
+
+        await fetch(API_URL, {
+            method: "DELETE",
+            body: JSON.stringify({ index: index })
+        });
+
+        await cargarProductos();
+        alert("Producto eliminado correctamente");
+
+    }catch(error){
+
+        console.error(error);
+        alert("Error eliminando producto");
+
+    }
 
 }
 
@@ -404,6 +1165,13 @@ function filtrarTabla(){
 
     });
 
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById("modalEditar");
+    if (event.target == modal) {
+        cerrarModal();
+    }
 }
 
 window.onload =
