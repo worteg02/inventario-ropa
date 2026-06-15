@@ -611,7 +611,7 @@ button:active{
 <script>
 
 const API_URL =
-"https://script.google.com/macros/s/AKfycbxY2MJwvQ4kO2qv8eiWVgfMfQ6zsXXgXCyxXIqBl4HtDZGa3_LTH-FU5OfvOvbhpfn2iQ/exec";
+"https://script.google.com/macros/s/AKfycbzW-QhaP1hWS76uTnGYJ-N8DbUi812bN3mpHmrlTsDSWW4xfp2KYBsMqk1izHOqkhmGFA/exec";
 
 let inventario=[];
 let graficoTalleChart;
@@ -1086,6 +1086,7 @@ function cerrarModal(){
 async function actualizarProducto(){
 
     const producto = {
+        action: "update",
         index: productoEditando,
         nombre: document.getElementById("editNombre").value,
         talle: document.getElementById("editTalle").value,
@@ -1102,7 +1103,7 @@ async function actualizarProducto(){
     try{
 
         await fetch(API_URL, {
-            method: "PUT",
+            method: "POST",
             body: JSON.stringify(producto)
         });
 
@@ -1128,8 +1129,11 @@ async function eliminarProducto(index){
     try{
 
         await fetch(API_URL, {
-            method: "DELETE",
-            body: JSON.stringify({ index: index })
+            method: "POST",
+            body: JSON.stringify({ 
+                action: "delete",
+                index: index 
+            })
         });
 
         await cargarProductos();
